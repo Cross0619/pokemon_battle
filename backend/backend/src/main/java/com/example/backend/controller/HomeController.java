@@ -13,6 +13,6 @@ public class HomeController {
 
     @GetMapping("/hello")
     public String getHello() {
-        return "ポケモンバトルへようこそ！";
+        return "ポケモンバトルアプリへようこそ！";
     }
 }
