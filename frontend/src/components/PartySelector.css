@@ -1,0 +1,168 @@
+/* 全体のコンテナ（左右分割） */
+.selector-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 1:1で左右分割 */
+  gap: 20px;
+  padding: 20px;
+  min-height: 90vh;
+  color: white;
+  font-family: 'Press Start 2P', 'Hiragino Kaku Gothic Pro', sans-serif;
+}
+
+/* プレイヤーごとのパネル（1P/2P共通） */
+.player-panel {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 4px solid #555;
+  border-radius: 15px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 5px 0 #000;
+}
+
+/* 1P/2Pの固有スタイル */
+.player1-panel { border-color: #e74c3c; } /* 赤 */
+.player2-panel { border-color: #3498db; } /* 青 */
+
+.panel-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.player-name {
+  font-size: 1.5rem;
+  text-shadow: 2px 2px #000;
+}
+
+/* ポケモン検索・選択エリア */
+.search-section {
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.8rem;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  color: #333;
+}
+
+.search-results {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  max-height: 150px;
+  overflow-y: auto; /* スクロール可能に */
+  padding: 5px;
+}
+
+.result-item {
+  padding: 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #444;
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+}
+
+.result-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* パーティリストエリア（ドラッグ＆ドロップ） */
+.party-section {
+  flex-grow: 1; /* 残りのスペースを埋める */
+  border-top: 2px solid #555;
+  padding-top: 15px;
+}
+
+.party-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ドラッグ可能なアイテム */
+.party-item {
+  background-color: #444;
+  border: 2px solid #666;
+  border-radius: 5px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  touch-action: none; /* DnD用 */
+}
+
+/* 「≡」ハンドルアイコン */
+.drag-handle {
+  cursor: grab;
+  color: #888;
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  color: white;
+}
+
+.pokemon-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-grow: 1;
+}
+
+.pokemon-remove {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* READY/開始ボタンエリア */
+.action-section {
+  margin-top: auto; /* 一番下に配置 */
+  text-align: center;
+  padding-top: 20px;
+}
+
+.ready-btn {
+  padding: 10px 30px;
+  font-size: 1rem;
+  background-color: #95a5a6; /* デフォルトはグレー */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: not_allowed;
+  opacity: 0.6;
+}
+
+.ready-btn.active {
+  background-color: #2ecc71; /* 緑 */
+  cursor: pointer;
+  opacity: 1;
+  box-shadow: 0 4px 0 #27ae60;
+}
+
+.ready-btn.active:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #27ae60;
+}
+
+.start-btn {
+  padding: 15px 40px;
+  font-size: 1.2rem;
+  background-color: #f1c40f; /* 黄色 */
+  color: #333;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #c0392b;
+}

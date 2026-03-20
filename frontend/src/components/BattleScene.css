@@ -1,0 +1,233 @@
+/* --- 共通：ゲームフォント設定（Press Start 2Pを想定） --- */
+.battle-container,
+.command-panel,
+.message-log-container,
+.bench-list {
+  font-family: 'Press Start 2P', 'Hiragino Kaku Gothic Pro', sans-serif;
+  color: white;
+  user-select: none;
+}
+
+/* --- メインコンテナ --- */
+.battle-container {
+  height: 95vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #333; /* 背景色（後で画像にするのも良い） */
+  padding: 10px;
+}
+
+/* --- バトルフィールド（上部70%） --- */
+.battle-field {
+  flex: 7; /* 上部70% */
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 左右分割 */
+  gap: 20px;
+  position: relative;
+  border: 4px solid #555;
+  border-radius: 10px;
+  background-color: #555; /* フィールドの背景（例：緑地） */
+  margin-bottom: 10px;
+}
+
+/* 中央の分割線 */
+.battle-field::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  height: 80%;
+  width: 2px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* プレイヤーごとの対戦エリア */
+.player-stage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  position: relative;
+}
+
+/* --- ステータスHUD (Name, HPbar, etc) --- */
+.status-hud {
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.p1-hud { border-color: #e74c3c; align-self: flex-start; } /* 左揃え */
+.p2-hud { border-color: #3498db; align-self: flex-end; } /* 右揃え */
+
+.pokemon-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+}
+
+.hp-bar-container {
+  width: 100%;
+  height: 12px;
+  background-color: #555;
+  border: 2px solid #000;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.hp-bar-fill {
+  height: 100%;
+  background-color: #2ecc71; /* 緑 */
+  transition: width 0.3s ease, background-color 0.3s ease;
+  width: 100%; /* 初期値 */
+}
+
+/* HPが減った時の色 */
+.hp-yellow { background-color: #f1c40f; }
+.hp-red { background-color: #e74c3c; }
+
+.hp-text {
+  text-align: right;
+  font-size: 0.6rem;
+  margin-top: 2px;
+}
+
+/* --- ポケモンスプライト表示（仮） --- */
+.pokemon-sprite-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* 地面に立たせる */
+  min-height: 150px;
+}
+
+.pokemon-sprite-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: #888; /* 画像がない場合のプレースホルダー */
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.2); /* 影 */
+}
+
+/* 手持ちポケモン（控え）のインジケーター（6個の点） */
+.party-ball-indicator {
+  position: absolute;
+  bottom: 10px;
+  display: flex;
+  gap: 5px;
+}
+.p1-indicator { left: 10px; }
+.p2-indicator { right: 10px; }
+
+.ball {
+  width: 10px;
+  height: 10px;
+  background-color: #fff; /* 生存 */
+  border-radius: 50%;
+  border: 1px solid #000;
+}
+.ball-fainted { background-color: #555; } /* ひんし */
+.ball-empty { background-color: rgba(255, 255, 255, 0.2); border: none; } /* 登録なし */
+
+/* ========================================= */
+/* --- コントロールパネル（下部30%） --- */
+/* ========================================= */
+.control-panel {
+  flex: 3; /* 下部30% */
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 4px solid #555;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+/* 左側：メッセージログ */
+.message-log-container {
+  flex: 1;
+  background-color: #222;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  overflow-y: auto;
+  color: #fff;
+}
+
+/* 右側：アクションボタン */
+.action-buttons-container {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+/* メインのアクション（たたかう、こうたい） */
+.main-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+/* 技選択・交代選択のサブパネル */
+.sub-action-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  display: none; /* 初期状態は非表示 */
+}
+.sub-action-panel.active { display: grid; }
+
+/* 交代リスト用のスタイル（1行表示） */
+.bench-list {
+  grid-template-columns: repeat(5, 1fr) !important;
+  font-size: 0.6rem !important;
+}
+
+/* ボタンの共通スタイル */
+.battle-btn {
+  padding: 12px;
+  font-size: 0.8rem;
+  color: white;
+  background-color: #555;
+  border: 2px solid #777;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #000;
+}
+
+.battle-btn:hover { background-color: #777; }
+.battle-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; }
+
+/* ボタンごとの色設定（たたかう、こうたい） */
+.btn-fight { background-color: #e74c3c; border-color: #c0392b; box-shadow: 0 4px 0 #a93226; }
+.btn-fight:hover { background-color: #f1948a; }
+
+.btn-switch { background-color: #3498db; border-color: #2980b9; box-shadow: 0 4px 0 #21618c; }
+.btn-switch:hover { background-color: #85c1e9; }
+
+.btn-cancel { background-color: #95a5a6; border-color: #7f8c8d; box-shadow: 0 4px 0 #616a6b; font-size: 0.6rem;}
+
+/* 技ボタンの色（タイプに合わせるのも良いが、まずは共通） */
+.btn-move { background-color: #eee; color: #333; border-color: #bbb; box-shadow: 0 4px 0 #888; font-size: 0.7rem;}
+.btn-move:hover { background-color: #ddd; }
+
+/* 交代ボタンの色（タイプ1の色をプレースホルダーにする） */
+.btn-bench { background-color: #27ae60; color: white; border-color: #1e8449; box-shadow: 0 4px 0 #145a32; font-size: 0.6rem; }
+.btn-bench:hover { background-color: #2ecc71; }
