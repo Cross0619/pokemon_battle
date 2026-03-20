@@ -100,11 +100,19 @@
 
 /* --- ポケモンスプライト表示（仮） --- */
 .pokemon-sprite-container {
-  flex-grow: 1;
+  width: 200px; /* お好みのサイズで */
+  height: 200px;
   display: flex;
   justify-content: center;
-  align-items: flex-end; /* 地面に立たせる */
-  min-height: 150px;
+  align-items: center;
+  margin: 10px auto;
+}
+
+.pokemon-sprite {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* アスペクト比を維持して枠に収める */
+  image-rendering: pixelated; /* ドット絵の場合、これを足すとクッキリします */
 }
 
 .pokemon-sprite-placeholder {
@@ -258,3 +266,48 @@
   height: 100%;
   transition: width 0.3s ease;
 }
+
+/* 手持ちアイコンのコンテナ */
+.party-display {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  border-radius: 20px;
+}
+
+.party-icon-container {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 2px solid transparent;
+}
+
+/* 今出ているポケモンのアイコンを光らせる */
+.active-icon {
+  border-color: #f1c40f;
+  background: rgba(241, 196, 15, 0.2);
+}
+
+.party-mini-sprite {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ★瀕死時のグレースケール設定 */
+.fainted-sprite {
+  filter: grayscale(100%) brightness(0.5); /* 白黒にして少し暗くする */
+  opacity: 0.7;
+}
+
+/* もし黒いシルエットにしたい場合はこちら */
+/* .fainted-sprite {
+  filter: brightness(0); 
+}
+*/

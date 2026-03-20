@@ -16,7 +16,7 @@ function StatusHud({ pokemon, currentHp, isP1 }) {
     <div className={`status-hud ${isP1 ? 'p1-hud' : 'p2-hud'}`}>
       <div className="pokemon-info-header">
         <span className="pokemon-name">{pokemon.name}</span>
-        <span className="pokemon-level">Lv50</span>
+        <span className="pokemon-level">防御力：{pokemon.defense}</span>
       </div>
       <div className="hp-bar-container">
         <div className={`hp-bar-fill ${getHpBarColorClass(currentHp, pokemon.hp)}`} style={{ width: `${hpRatio}%` }} />
@@ -172,7 +172,7 @@ const executeTurn = async (p1Action, p2Action) => {
     if (battlePhase === 'P1_SELECT_MOVE' || battlePhase === 'P1_SELECT_SWITCH' || battlePhase === 'P1_SELECT_MAIN') {
       setP1SelectedAction(action);
       setBattlePhase('P2_SELECT_MAIN');
-      setMessage(`1Pは ${name} を選択！\n次は2Pの行動を選んでください。`);
+      setMessage(`次は2Pの行動を選んでください。`);
     } else if (p1SelectedAction !== null) { // ★ nullチェックを追加
       executeTurn(p1SelectedAction, action);
     } else {
@@ -235,11 +235,62 @@ const executeTurn = async (p1Action, p2Action) => {
       <div className="battle-field">
         <div className="player-stage">
           <StatusHud pokemon={p1Active} currentHp={p1Hp} isP1={true} />
-          <div className="pokemon-sprite-placeholder">{p1Active.name[0]}</div>
+          {/* <div className="pokemon-sprite-placeholder">{p1Active.name[0]}</div> */}
+          <div className="pokemon-sprite-container">
+              <img 
+                src={`/pokemon_images/${p1Active.id}.png`} 
+                alt={p1Active.name} 
+                className="pokemon-sprite p1-sprite" 
+              />
+          </div>
+          {/* ★追加：手持ちポケモンのリスト */}
+          <div className="party-display party">
+            {battleData.party1.map(p => {
+              const status = p1PartyStatus.find(s => s.id === p.id);
+              const isFainted = status && status.currentHp <= 0;
+              const isActive = p.id === p1Active.id;
+              
+              return (
+                <div key={p.id} className={`party-icon-container ${isActive ? 'active-icon' : ''}`}>
+                  <img 
+                    src={`/pokemon_images/${p.id}.png`} 
+                    alt={p.name} 
+                    className={`party-mini-sprite ${isFainted ? 'fainted-sprite' : ''}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
         <div className="player-stage">
           <StatusHud pokemon={p2Active} currentHp={p2Hp} isP1={false} />
-          <div className="pokemon-sprite-placeholder">{p2Active.name[0]}</div>
+          {/* <div className="pokemon-sprite-placeholder">{p2Active.name[0]}</div> */}
+          <div className="pokemon-sprite-container">
+              <img 
+                src={`/pokemon_images/${p2Active.id}.png`} 
+                alt={p2Active.name} 
+                className="pokemon-sprite p2-sprite" 
+              />
+          </div>
+          
+          {/* ★追加：手持ちポケモンのリスト */}
+          <div className="party-display party">
+            {battleData.party2.map(p => {
+              const status = p1PartyStatus.find(s => s.id === p.id);
+              const isFainted = status && status.currentHp <= 0;
+              const isActive = p.id === p2Active.id;
+              
+              return (
+                <div key={p.id} className={`party-icon-container ${isActive ? 'active-icon' : ''}`}>
+                  <img 
+                    src={`/pokemon_images/${p.id}.png`} 
+                    alt={p.name} 
+                    className={`party-mini-sprite ${isFainted ? 'fainted-sprite' : ''}`}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -276,7 +327,7 @@ const executeTurn = async (p1Action, p2Action) => {
             <div className="sub-action-panel active">
               {currentMoves.map(m => (
                 <button key={m.id} className={`battle-btn btn-move type-${m.type}`} onClick={() => handleSelectAction('MOVE', m.id, m.name)}>
-                  {m.name}
+                  {m.name}({m.power})
                 </button>
               ))}
               <button className="battle-btn btn-cancel" onClick={() => setBattlePhase(battlePhase.replace('MOVE', 'MAIN'))}>戻る</button>
@@ -290,17 +341,18 @@ const executeTurn = async (p1Action, p2Action) => {
                 <button key={p.id} className="battle-btn btn-bench" onClick={() => handleSelectAction('SWITCH', p.id, p.name)}>
                     <div className="bench-btn-content">
                       <span className="bench-pokemon-name">{p.name}</span>
+                      <br/>
                       <span className="bench-pokemon-hp">
                         {p.currentHp} / {p.hp}
                       </span>
                     </div>
                     {/* おまけ：HPバーも小さく出すとさらに「いい感じ」になります */}
-                    <div className="mini-hp-bar-container">
+                    {/* <div className="mini-hp-bar-container">
                        <div 
                          className={`mini-hp-bar-fill ${getHpBarColorClass(p.currentHp, p.hp)}`} 
                          style={{ width: `${(p.currentHp / p.hp) * 100}%` }} 
                        />
-                    </div>
+                    </div> */}
                 </button>
               ))}
               <button className="battle-btn btn-cancel" onClick={() => setBattlePhase(battlePhase.replace('SWITCH', 'MAIN'))}>戻る</button>
@@ -314,17 +366,18 @@ const executeTurn = async (p1Action, p2Action) => {
                 <button key={p.id} className="battle-btn btn-bench" onClick={() => handleForcedSwitch(p)}>
                     <div className="bench-btn-content">
                       <span className="bench-pokemon-name">{p.name}</span>
+                      <br/>
                       <span className="bench-pokemon-hp">
                         {p.currentHp} / {p.hp}
                       </span>
                     </div>
                     {/* おまけ：HPバーも小さく出すとさらに「いい感じ」になります */}
-                    <div className="mini-hp-bar-container">
+                    {/* <div className="mini-hp-bar-container">
                        <div 
                          className={`mini-hp-bar-fill ${getHpBarColorClass(p.currentHp, p.hp)}`} 
                          style={{ width: `${(p.currentHp / p.hp) * 100}%` }} 
                        />
-                    </div>
+                    </div> */}
                 </button>
               ))}
             </div>
