@@ -47,7 +47,8 @@ public class BattleService {
                       p1First ? p2Active : p1Active, 
                       p1First ? request.p1CurrentHp : request.p2CurrentHp,
                       p1First ? request.p2CurrentHp : request.p1CurrentHp,
-                      res, logs, p1First, true);
+                      res, logs, p1First, true,
+                    request.p1Party, request.p2Party);
 
         // ★ここで重要！先攻の行動（交代など）を反映した最新の「場」の情報に更新する
         p1Active = pokemonRepository.findById(res.p1ActiveId).orElseThrow();
@@ -60,7 +61,8 @@ public class BattleService {
                           p1First ? p1Active : p2Active, 
                           p1First ? res.p2NewHp : res.p1NewHp,
                           p1First ? res.p1NewHp : res.p2NewHp,
-                          res, logs, !p1First, false);
+                          res, logs, !p1First, false,
+                          request.p1Party, request.p2Party);
         }
 
         // 3. 全滅チェック（1P側）
@@ -94,14 +96,32 @@ public class BattleService {
 
     private void executeAction(BattleTurnRequest.BattleAction action, Pokemon actor, Pokemon target, 
                                int actorHp, int targetHp, BattleTurnResponse res, 
-                               List<String> logs, boolean isP1Action, boolean isFirst) {
+                               List<String> logs, boolean isP1Action, boolean isFirst,
+                           List<BattleTurnRequest.PokemonState> p1Party,  // ★追加
+                           List<BattleTurnRequest.PokemonState> p2Party) {
         
         if (action.type.equals("SWITCH")) {
             // 交代処理
             Pokemon nextPkmn = pokemonRepository.findById(action.actionId).orElseThrow();
             logs.add((isP1Action ? "1P" : "2P") + "は " + actor.getName() + " を下げて " + nextPkmn.getName() + " を繰り出した！");
-            if (isP1Action) { res.p1ActiveId = nextPkmn.getId(); res.p1NewHp = nextPkmn.getHp(); }
-            else { res.p2ActiveId = nextPkmn.getId(); res.p2NewHp = nextPkmn.getHp(); }
+            if (isP1Action) {
+                // ★手持ちリストから現在HPを取得
+                int currentHp = p1Party.stream()
+                    .filter(p -> p.id.equals(nextPkmn.getId()))
+                    .findFirst()
+                    .map(p -> p.currentHp)
+                    .orElse(nextPkmn.getHp());
+                res.p1ActiveId = nextPkmn.getId();
+                res.p1NewHp = currentHp;
+            } else {
+                int currentHp = p2Party.stream()
+                    .filter(p -> p.id.equals(nextPkmn.getId()))
+                    .findFirst()
+                    .map(p -> p.currentHp)
+                    .orElse(nextPkmn.getHp());
+                res.p2ActiveId = nextPkmn.getId();
+                res.p2NewHp = currentHp;
+            }
         } else {
             // 攻撃処理
             Move move = moveRepository.findById(action.actionId).orElseThrow();

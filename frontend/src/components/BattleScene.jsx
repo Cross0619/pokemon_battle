@@ -165,78 +165,6 @@ const executeTurn = async (p1Action, p2Action) => {
     }
   };
 
-//   const executeTurn = async (p1Action, p2Action) => {
-//     setBattlePhase('EXECUTING');
-//     setMessage("・・・計算中・・・");
-
-//     const requestBody = {
-//       player1Action: p1Action,
-//       player2Action: p2Action,
-//       p1ActiveId: p1Active.id,
-//       p2ActiveId: p2Active.id,
-//       p1CurrentHp: p1Hp,
-//       p2CurrentHp: p2Hp,
-//       p1Party: p1PartyStatus, // ★手持ちの状態を送る
-//       p2Party: p2PartyStatus  // ★手持ちの状態を送る
-//     };
-
-//     try {
-//       const res = await fetch("http://localhost:8080/api/battle/turn", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(requestBody)
-//       });
-//       const result = await res.json();
-
-//       // HPを更新
-//       setMessage(result.message);
-//       setP1Hp(result.p1NewHp);
-//       setP2Hp(result.p2NewHp);
-
-//       // ★ 2. 場のポケモンを「最新のID」に合わせて入れ替える処理を追加！
-//     // 1Pの交代チェック
-//     if (result.p1ActiveId && result.p1ActiveId !== p1Active.id) {
-//       const nextP1 = battleData.party1.find(p => p.id === result.p1ActiveId);
-//       setP1Active(nextP1); // 名前や最大HPなどの情報を更新
-//       const ms = await fetchMovesForPokemon(nextP1.id);
-//       setP1Moves(ms);      // 技リストを更新
-//     }
-    
-//     // 2Pの交代チェック
-//     if (result.p2ActiveId && result.p2ActiveId !== p2Active.id) {
-//       const nextP2 = battleData.party2.find(p => p.id === result.p2ActiveId);
-//       setP2Active(nextP2);
-//       const ms = await fetchMovesForPokemon(nextP2.id);
-//       setP2Moves(ms);
-//     }
-      
-//       // ★手持ち全員のHPステートも最新に更新
-//       setP1PartyStatus(prev => prev.map(p => p.id === p1Active.id ? { ...p, currentHp: result.p1NewHp } : p));
-//       setP2PartyStatus(prev => prev.map(p => p.id === p2Active.id ? { ...p, currentHp: result.p2NewHp } : p));
-
-//       // 3秒後に「ひんし判定」を行う
-//       setTimeout(() => {
-//         if (result.winner) {
-//           setBattlePhase('FINISHED');
-//           setMessage(`試合終了！勝者は ${result.winner} です！`);
-//         } else if (result.p1Fainted) {
-//           setBattlePhase('P1_FORCED_SWITCH');
-//           setMessage(`1Pの ${p1Active.name} はたおれた！交代してください。`);
-//         } else if (result.p2Fainted) {
-//           setBattlePhase('P2_FORCED_SWITCH');
-//           setMessage(`2Pの ${p2Active.name} はたおれた！交代してください。`);
-//         } else {
-//           // 誰も倒れていなければ次のターンへ
-//           setBattlePhase('P1_SELECT_MAIN');
-//           setMessage("1Pの行動を選択してください。");
-//           setP1SelectedAction(null);
-//         }
-//       }, 3000);
-
-//     } catch (e) {
-//       setMessage("通信エラーが発生しました。");
-//     }
-//   };
 
   // 6. 通常の行動選択（たたかう・こうたい）
   const handleSelectAction = (type, id, name) => {
@@ -291,15 +219,16 @@ const executeTurn = async (p1Action, p2Action) => {
   // ボタンに表示する技や控えのリストを判定
   const isP1Turn = battlePhase.startsWith('P1');
   const currentMoves = isP1Turn ? p1Moves : p2Moves;
-  const currentBench = isP1Turn 
-    ? battleData.party1.filter(p => 
-        String(p.id) !== String(p1Active.id) &&  // ← String()追加
-        p1PartyStatus.find(s => String(s.id) === String(p.id))?.currentHp > 0  // ← String()追加
-      )
-    : battleData.party2.filter(p => 
-        String(p.id) !== String(p2Active.id) &&  // ← String()追加
-        p2PartyStatus.find(s => String(s.id) === String(p.id))?.currentHp > 0  // ← String()追加
-      );
+  
+  // 控えのリストを作る際、現在のHP情報を合体させる
+  const currentBench = (isP1Turn ? battleData.party1 : battleData.party2)
+    .filter(p => p.id !== (isP1Turn ? p1Active.id : p2Active.id)) // 場に出ている子以外
+    .map(p => {
+      const status = (isP1Turn ? p1PartyStatus : p2PartyStatus).find(s => s.id === p.id);
+      return { ...p, currentHp: status ? status.currentHp : p.hp }; // 最新のHPを合成
+    })
+    .filter(p => p.currentHp > 0); // 生きている子だけ（強制交代時用）
+
 
   return (
     <div className="battle-container">
@@ -358,7 +287,21 @@ const executeTurn = async (p1Action, p2Action) => {
           {(battlePhase === 'P1_SELECT_SWITCH' || battlePhase === 'P2_SELECT_SWITCH') && (
             <div className="sub-action-panel active bench-list">
               {currentBench.map(p => (
-                <button key={p.id} className="battle-btn btn-bench" onClick={() => handleSelectAction('SWITCH', p.id, p.name)}>{p.name}</button>
+                <button key={p.id} className="battle-btn btn-bench" onClick={() => handleSelectAction('SWITCH', p.id, p.name)}>
+                    <div className="bench-btn-content">
+                      <span className="bench-pokemon-name">{p.name}</span>
+                      <span className="bench-pokemon-hp">
+                        {p.currentHp} / {p.hp}
+                      </span>
+                    </div>
+                    {/* おまけ：HPバーも小さく出すとさらに「いい感じ」になります */}
+                    <div className="mini-hp-bar-container">
+                       <div 
+                         className={`mini-hp-bar-fill ${getHpBarColorClass(p.currentHp, p.hp)}`} 
+                         style={{ width: `${(p.currentHp / p.hp) * 100}%` }} 
+                       />
+                    </div>
+                </button>
               ))}
               <button className="battle-btn btn-cancel" onClick={() => setBattlePhase(battlePhase.replace('SWITCH', 'MAIN'))}>戻る</button>
             </div>
@@ -368,7 +311,21 @@ const executeTurn = async (p1Action, p2Action) => {
           {(battlePhase === 'P1_FORCED_SWITCH' || battlePhase === 'P2_FORCED_SWITCH') && (
             <div className="sub-action-panel active bench-list">
               {currentBench.map(p => (
-                <button key={p.id} className="battle-btn btn-bench" onClick={() => handleForcedSwitch(p)}>{p.name}</button>
+                <button key={p.id} className="battle-btn btn-bench" onClick={() => handleForcedSwitch(p)}>
+                    <div className="bench-btn-content">
+                      <span className="bench-pokemon-name">{p.name}</span>
+                      <span className="bench-pokemon-hp">
+                        {p.currentHp} / {p.hp}
+                      </span>
+                    </div>
+                    {/* おまけ：HPバーも小さく出すとさらに「いい感じ」になります */}
+                    <div className="mini-hp-bar-container">
+                       <div 
+                         className={`mini-hp-bar-fill ${getHpBarColorClass(p.currentHp, p.hp)}`} 
+                         style={{ width: `${(p.currentHp / p.hp) * 100}%` }} 
+                       />
+                    </div>
+                </button>
               ))}
             </div>
           )}
