@@ -194,19 +194,19 @@ const executeTurn = async (p1Action, p2Action) => {
 
     if (battlePhase === 'P1_FORCED_SWITCH') {
       setP1Active(pokemon);
-      setP1Hp(pokemon.hp);
+      setP1Hp(pokemon.currentHp);
       setP1Moves(ms);
       // ★重要：手持ちの状態も「このポケモンは今これだけのHPで場にいる」と更新する
-      setP1PartyStatus(prev => prev.map(p => p.id === pokemon.id ? { ...p, currentHp: pokemon.hp } : p));
+      setP1PartyStatus(prev => prev.map(p => p.id === pokemon.id ? { ...p, currentHp: pokemon.currentHp } : p));
       
       setBattlePhase('P1_SELECT_MAIN');
       setMessage(`1Pは ${pokemon.name} を繰り出した！\n行動を選択してください。`);
     } else {
       setP2Active(pokemon);
-      setP2Hp(pokemon.hp);
+      setP2Hp(pokemon.currentHp);
       setP2Moves(ms);
       // ★重要：2P側も同様
-      setP2PartyStatus(prev => prev.map(p => p.id === pokemon.id ? { ...p, currentHp: pokemon.hp } : p));
+      setP2PartyStatus(prev => prev.map(p => p.id === pokemon.id ? { ...p, currentHp: pokemon.currentHp } : p));
       
       setBattlePhase('P1_SELECT_MAIN');
       setMessage(`2Pは ${pokemon.name} を繰り出した！\n1Pの行動を選択してください。`);
@@ -276,7 +276,7 @@ const executeTurn = async (p1Action, p2Action) => {
           {/* ★追加：手持ちポケモンのリスト */}
           <div className="party-display party">
             {battleData.party2.map(p => {
-              const status = p1PartyStatus.find(s => s.id === p.id);
+              const status = p2PartyStatus.find(s => s.id === p.id);
               const isFainted = status && status.currentHp <= 0;
               const isActive = p.id === p2Active.id;
               

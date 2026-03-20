@@ -84,6 +84,14 @@
   gap: 10px;
 }
 
+/* 追加したアイコンのスタイル */
+.party-list-icon {
+  width: 30px;  /* 小さめのアイコンサイズ */
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated; /* ドット絵ならクッキリさせる */
+}
+
 /* ドラッグ可能なアイテム */
 .party-item {
   background-color: #444;
@@ -103,7 +111,7 @@
   cursor: grab;
   color: #888;
   font-size: 1.2rem;
-  user-select: none;
+  padding: 0 5px;
 }
 
 .drag-handle:active {
@@ -111,11 +119,11 @@
   color: white;
 }
 
+/* 名前部分のスタイル（タイプが消えたのでシンプルに） */
 .pokemon-info {
+  flex: 1; /* 残りの横幅をいっぱいに使う */
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-grow: 1;
 }
 
 .pokemon-remove {
@@ -165,4 +173,9 @@
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 5px 0 #c0392b;
+}
+
+/* ポケモンの名前 */
+.result-pokemon-name {
+  text-align: left;       /* 左詰め */
 }

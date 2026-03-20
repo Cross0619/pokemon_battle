@@ -19,9 +19,16 @@ function SortablePokemonItem({ id, pokemon, onRemove }) {
       {/* 「≡」ドラッグハンドル（listenersをここだけにつけることで、名前クリック等と分離） */}
       <div {...attributes} {...listeners} className="drag-handle">≡</div>
       
+      {/* ★追加：ポケモンアイコン画像 */}
+      <img 
+        src={`/pokemon_images/${pokemon.id}.png`} 
+        alt={pokemon.name} 
+        className="party-list-icon" 
+      />
+      
       <div className="pokemon-info">
         <span className="pokemon-name">{pokemon.name}</span>
-        <span className="type-badge" style={{fontSize: '0.6rem'}}>{pokemon.type1}</span>
+        {/* ★タイプ表示（type-badge）は削除しました */}
       </div>
       
       <button className="pokemon-remove" onClick={() => onRemove(pokemon.id)}>✕</button>
@@ -92,8 +99,15 @@ function PlayerPanel({ playerId, playerName, masterPokemons, party, setParty, is
             <div className="search-results">
               {filteredPokemons.map(p => (
                 <div key={p.id} className="result-item" onClick={() => addToParty(p)}>
-                  <span>{p.name}</span>
-                  <span className="type-badge">{p.type1}</span>
+                  {/* ★追加：ポケモンアイコン画像 */}
+                  <img 
+                    src={`/pokemon_images/${p.id}.png`} 
+                    alt={p.name} 
+                    className="party-list-icon" 
+                  />
+                  <span className="result-pokemon-name">{p.name}</span>
+                  {/* <span>{p.name}</span> */}
+                  {/* <span className="type-badge">{p.type1}</span> */}
                 </div>
               ))}
             </div>

@@ -154,9 +154,20 @@ public class BattleService {
 
     public int calculateDamage(int movePower, String moveType, Pokemon defender) {
         double multiplier = getMultiplier(moveType, defender.getType1(), defender.getType2());
-        // 公式: floor(威力 * 相性) - 防御力
-        int baseDamage = (int) Math.floor(movePower * multiplier);
-        return Math.max(baseDamage - defender.getDefense(), 0);
+    
+        // 1. タイプ相性による「効果なし（0倍）」を最優先で判定
+        if (multiplier == 0) {
+            return 0;
+        }
+    
+        // 2. 基本ダメージの計算（威力 × 相性）
+        int attackPower = (int) Math.floor(movePower * multiplier);
+    
+        // 3. 防御力を差し引く
+        int finalDamage = attackPower - defender.getDefense();
+    
+        // 4. 防御力で0以下になっても、最低1ダメージは保証する
+        return Math.max(finalDamage, 1);
     }
 
     private double getMultiplier(String atkType, String defType1, String defType2) {
